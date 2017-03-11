@@ -1,0 +1,23 @@
+//- Created by Stefan on 11.03.2017.
+
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  div(class='diceroller')
+      div(
+          id='rollLog'
+          class='textarea'
+      )
+      form(method='POST')
+          input(
+            type='text'
+            id='rollMsg'
+            name='roll'
+          )
+          input(
+            type='submit'
+            id='rollBtn'
+            value='Roll!'
+          )
