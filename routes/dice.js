@@ -1,17 +1,15 @@
 var express = require('express');
 var router = express.Router();
-/*var bodyParser = require('body-parser');
 
-var app = express();
-
-app.use(bodyParser);*/
-/* GET dice.js roller page. */
+/* GET dice page. */
 router.get('/', function(req, res, next) {
+    res.render('dice', { title: 'Dice' });
+});
 
-    console.log('GET: ' + req.query.roll);
-    console.log('POST: ' + req.body.roll);
-    res.render('dice', { title: 'Dice'/*,
-                         roll: req.body.roll*/});
+router.post('/', function(req, res, next) {
+    res.render('dice', { title: 'Dice',
+        rollResult: req.body.rollMsg
+    });
 });
 
 module.exports = router;
