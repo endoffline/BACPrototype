@@ -244,23 +244,25 @@ exports.parse = function (input) {
                 newSy();
                 break;
             case sym.identifier:
+
+                return syntaxError('Error: "' + identifierStr + '" not found!', syLnr, syCnr);
                 /*var identifierVal = document.getElementById(identifierStr);
 
-                if (!identifierVal) {
-                    return syntaxError('Error: "' + identifierStr + '" not found!', syLnr, syCnr);
-                } else if (identifierVal.value) {
-                    identifierVal = identifierVal.value;
-                } else if (identifierVal.innerHTML) {
-                    identifierVal = identifierVal.innerHTML;
-                } else {
-                    return syntaxError('Error: "' + identifierStr + '" has no content!', syLnr, syCnr);
-                }
+                 if (!identifierVal) {
 
-                if (isNaN(parseFloat(identifierVal))) {
-                    return syntaxError('Error: "' + identifierStr + '" is not a number!', syLnr, syCnr);
-                }
+                 } else if (identifierVal.value) {
+                 identifierVal = identifierVal.value;
+                 } else if (identifierVal.innerHTML) {
+                 identifierVal = identifierVal.innerHTML;
+                 } else {
+                 return syntaxError('Error: "' + identifierStr + '" has no content!', syLnr, syCnr);
+                 }
 
-                resultFact = parseFloat(identifierVal);*/
+                 if (isNaN(parseFloat(identifierVal))) {
+                 return syntaxError('Error: "' + identifierStr + '" is not a number!', syLnr, syCnr);
+                 }
+
+                 resultFact = parseFloat(identifierVal);*/
                 resultFact = identifierStr;
                 result.content.push({type: 'identifier', value: resultFact});
                 newSy();
@@ -293,25 +295,41 @@ exports.parse = function (input) {
     return result;
 }
 
-exports.diceResultToString = function(result) {
+exports.diceResultToString = function (result) {
+
+    var entityMap = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': '&quot;',
+        "'": '&#39;',
+        "/": '&#x2F;'
+    };
+
+    function escapeHtml(string) {
+        return String(string).replace(/[&<>"'\/]/g, function (s) {
+            return entityMap[s];
+        });
+    }
+
     var message = '';
 
     if (result.result !== 'error') {
 
         for (var i = 0; i < result.content.length; i++) {
-            if (result.content[i].type === 'dice') {
-                if (result.content[i].value === result.content[i].sides) {
-                    message += '<span class="rollCriticalSuccess">';
-                } else if (result.content[i].value === 1) {
-                    message += '<span class="rollCriticalFailure">';
-                }
-            }
+            /*if (result.content[i].type === 'dice') {
+             if (result.content[i].value === result.content[i].sides) {
+             message += '<span class="rollCriticalSuccess">';
+             } else if (result.content[i].value === 1) {
+             message += '<span class="rollCriticalFailure">';
+             }
+             }*/
             message += result.content[i].value;
 
             if (result.content[i].type === 'dice') {
-                if (result.content[i].value === result.content[i].sides || result.content[i].value === 1) {
-                    message += '</span>';
-                }
+                /*if (result.content[i].value === result.content[i].sides || result.content[i].value === 1) {
+                 message += '</span>';
+                 }*/
 
                 message += '[d' + result.content[i].sides + ']';
             }
@@ -322,14 +340,7 @@ exports.diceResultToString = function(result) {
         message += '= ' + result.result;
     } else {
         //noinspection JSCheckFunctionSignatures,JSCheckFunctionSignatures
-        message = escapeHtml(result.input.substring(0, result.exception.col - 1))
-            + '<span class="bg-danger">'
-            + escapeHtml(result.input.substring(result.exception.col - 1, result.exception.col))
-            + '</span>'
-            + escapeHtml(result.input.substring(result.exception.col))
-            + '<br>'
-            + result.exception.message
-            + '<br>';
+        message = result.exception.message;
     }
     return message;
 }

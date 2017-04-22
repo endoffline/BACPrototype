@@ -14,9 +14,15 @@ router.post('/', function(req, res, next) {
     var resultString = diceResultToString(result);
     console.log(resultString);
     console.log(result);
-    res.render('dice', { title: 'Dice',
-        rollResult: resultString
-    });
+
+    if (req.xhr || req.accepts('json,html')==='json') {
+        res.json({ rollResult: result });
+    } else {
+        res.render('dice', { title: 'Dice',
+            rollResult: resultString
+        });
+    }
+
 });
 
 module.exports = router;
