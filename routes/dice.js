@@ -22,7 +22,6 @@ router.post('/', function(req, res, next) {
             rollResult: resultString
         });
     }
-
 });
 
 module.exports = router;

@@ -1,5 +1,6 @@
 exports.parse = function (input) {
     var inputString = input.toString();
+
     // ------- Tokenizer ------- //
     var sym = {
         none: 'none', eof: 'eof', error: 'error',
@@ -207,6 +208,9 @@ exports.parse = function (input) {
         }
         if (sy == sym.dice) {
             quantity = resultDice;
+            if (quantity > 1000) {
+                return syntaxError('Error: Numbers are too high!', syLnr, syCnr);
+            }
             resultDice = 0;
             newSy();
             if (syIsNot(sym.number)) {
@@ -216,6 +220,9 @@ exports.parse = function (input) {
             sides = fact();
             if (!success) {
                 return 'error';
+            }
+            if (sides > 1000) {
+                return syntaxError('Error: Numbers are too high!', syLnr, syCnr);
             }
             result.content.splice(result.content.length - 1, 1);
 
@@ -289,9 +296,16 @@ exports.parse = function (input) {
         return resultFact;
     }
 
-    initScanner();
-    result.result = s(result);
+    if (inputString.length > 140) {
+        syntaxError('Error: Input is too long!', 0, 0);
+        result.result = 'error';
+    } else {
+        initScanner();
+        result.result = s(result);
+    }
+
     console.log(result);
+
     return result;
 }
 

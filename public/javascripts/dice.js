@@ -1,10 +1,9 @@
 /**
  * Created by Stefan on 22.04.2017.
  */
-var messageText;
-var log = [];
-var logPosition = 0;
-var parserResult;
+var log = [],
+    logPosition = 0,
+    parserResult;
 
 $(document).ready(function() {
     $('#rollLog').html('');
@@ -14,7 +13,7 @@ $(document).ready(function() {
 
 function rollDice(event) {
 
-    messageText = $('#rollMsg').val();
+    var messageText = $('#rollMsg').val();
     $('#rollMsg').val('');
 
     if (messageText.length !== 0) {
