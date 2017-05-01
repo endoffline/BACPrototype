@@ -1,8 +1,82 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    /*padding: 50px;*/
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /*pointer-events: none;*/
 }
 
 a {
-  color: #00B7FF;
+    color: #00B7FF;
+}
+
+.diceroller {
+    padding: 20px;
+    height: 100%;
+}
+
+.textarea, input {
+    padding: 3px 12px;
+    height: 25px;
+    margin: 2px;
+    font-size: 16px;
+    color: #353535;
+    background-color: #fff;
+    border: 1px solid #757575;
+    /*border-radius: 4px;*/
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+
+}
+
+.textarea {
+    padding: 6px;
+    -moz-appearance: textfield-multiline;
+    -webkit-appearance: textarea;
+    appearance: textarea;
+    display: block;
+    /*resize: both;*/
+    overflow: auto;
+    height: 300px;
+}
+
+input[type=submit] {
+    height: auto;
+    background-color: #deceeb;
+}
+.diceForm {
+    display: flex;
+    width: 100%;
+}
+
+#rollMsg {
+    width: 80%;
+}
+
+#rollBtn {
+    width: 20%;
+}
+
+
+@media (min-width: 600px) {
+
+    .diceroller {
+        padding-left: 100px;
+        padding-right: 100px;
+    }
 }

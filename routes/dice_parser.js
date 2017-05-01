@@ -77,7 +77,7 @@ exports.parse = function (input) {
                 break;
             case (ch.match(/^[a-zA-Z]+$/) || {}).input:
                 identifierStr = '';
-                while (ch.match(/^[a-zA-Z_]+$/)) {
+                while (ch.match(/^[a-zA-Z]+$/)) {
                     identifierStr = identifierStr.concat(ch.toLowerCase());
                     newCh();
                 }
