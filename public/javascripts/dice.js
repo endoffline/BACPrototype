@@ -25,12 +25,11 @@ function rollDice(event) {
             function( data ) {
                 parserResult = data.rollResult;
                 displayDiceResult(parserResult);
+                $('#rollLog').scrollTop($('#rollLog')[0].scrollHeight + 6);
             },
             "json"
         );
     }
-
-    $('#rollLog').scrollTop($('#rollLog')[0].scrollHeight);
 
     event.preventDefault();
 }
