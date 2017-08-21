@@ -1,15 +1,20 @@
 /**
  * Created by Stefan on 22.04.2017.
  */
-var log = [],
-    logPosition = 0,
-    parserResult;
+if (typeof(jQuery) != 'undefined') {
 
-$(document).ready(function() {
-    $('#rollLog').html('');
-    $('.diceForm').submit(rollDice);
-    $('#rollMsg').keyup(getLastMessage)
-});
+    var log = [],
+        logPosition = 0,
+        parserResult;
+
+
+    //check if html elements are all loaded and only then execute javascript
+    $(document).ready(function() {
+        $('#rollLog').html('');
+        $('.diceForm').submit(rollDice);
+        $('#rollMsg').keyup(getLastMessage)
+    });
+}
 
 function rollDice(event) {
 

@@ -4,9 +4,12 @@ html
     title= title
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    script(type='text/javascript' src='/javascripts/jquery-3.2.1.js')
-    script(src='http://cdn.babylonjs.com/2-5/babylon.js')
-    //script(src='http://cdn.babylonjs.com/2-1/babylon.js')
+    script(type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
+    script.
+      window.jQuery || document.write('<script src="/javascripts/jquery.min.js"><\/script>')
+    script(src='http://cdn.babylonjs.com/babylon.js')
+    script.
+      window.BABYLON || document.write('<script src="/javascripts/babylon.js"><\/script>')
     script(src='/javascripts/helloWorld.js')
     script(type='text/javascript' src='/javascripts/dice.js')
   body

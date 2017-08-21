@@ -8,9 +8,9 @@ var createScene = function () {
     var scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color4(0,0,0,0);
     // This creates and positions a free camera (non-mesh)
-    var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 20, -5), scene);
+    var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 25, -5), scene);
     //camera.rotation = new BABYLON.Vector3(Math.PI/3.5, 0, 0);
-    camera.attachControl(engine.getRenderingCanvas());
+    //camera.attachControl(engine.getRenderingCanvas());
     // This targets the camera to scene origin
     camera.setTarget(BABYLON.Vector3.Zero());
 
@@ -22,8 +22,10 @@ var createScene = function () {
 
     var dLight = new BABYLON.DirectionalLight("dLight1", new BABYLON.Vector3(0.5,-1,0.5), scene);
     dLight.position = new BABYLON.Vector3(0,40,0);
-    scene.shadows = new BABYLON.ShadowGenerator(4096, dLight);
-    scene.shadows.useBlurVariansShadowMap = true;
+    scene.shadows = new BABYLON.ShadowGenerator(1024, dLight);
+    scene.shadows.useBlurExponentialShadowMap = true;
+    scene.shadows.depthScale = 2500;
+    //scene.shadows.bias = 0.001;
     //scene.shadows.setTransparencyShadow(true);
     var materialDice = new BABYLON.StandardMaterial("diceTexture", scene);
     materialDice.diffuseColor = new BABYLON.Color3(0.5, 0, 0.8);
@@ -36,15 +38,16 @@ var createScene = function () {
     // Move the sphere upward 1/2 its height
     sphere.position.y = 1;
     sphere.receiveShadows = true;
+
     var cube = BABYLON.Mesh.CreateBox("myBox", 1, scene);
     cube.material = materialDice;
     cube.position.y = 0.5;
-    cube.position.x  = -5;
+    cube.position.x  = 2;
 
     cube.receiveShadows = true;
 
     var materialTransparent = new BABYLON.StandardMaterial("transparentTexture", scene);
-    //materialTransparent.alpha = 0;
+    materialTransparent.alpha = 0;
     // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
     var ground = BABYLON.Mesh.CreateGround("ground1", 100, 100, 2, scene);
     ground.material = materialTransparent;
@@ -52,7 +55,7 @@ var createScene = function () {
 
     scene.shadows.getShadowMap().renderList.push(sphere);
     scene.shadows.getShadowMap().renderList.push(cube);
-    scene.shadows.getShadowMap().renderList.push(ground);
+    //scene.shadows.getShadowMap().renderList.push(ground);
     return scene;
 
 };
@@ -77,23 +80,25 @@ var createScene = function () {
  return scene;
  };*/
 
-// Execute WebGL only when the DOM is loaded
-window.addEventListener("DOMContentLoaded", function () {
+// Execute the WebGL application only if Babylon.js is available
+if (typeof(BABYLON) != 'undefined') {
+    // Execute WebGL only when the DOM is loaded
+    window.addEventListener("DOMContentLoaded", function () {
 
-    // BABYLON Engine creation
-    canvas = document.getElementById('renderCanvas');
-    engine = new BABYLON.Engine(canvas, true);
-    scene = createScene(engine);
+        // BABYLON Engine creation
+        canvas = document.getElementById('renderCanvas');
+        engine = new BABYLON.Engine(canvas, true);
+        scene = createScene(engine);
 
-    // The render loop
-    engine.runRenderLoop(function () {
-        scene.render();
+        // The render loop
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+    }, false);
+
+    // Watch for browser/canvas resize events
+    window.addEventListener("resize", function () {
+        engine.resize();
     });
-
-}, false);
-
-// Watch for browser/canvas resize events
-window.addEventListener("resize", function () {
-    engine.resize();
-});
-
+}

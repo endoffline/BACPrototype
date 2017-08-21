@@ -3,20 +3,22 @@
 extends layout
 
 block content
-    canvas(id='renderCanvas')
     div(class='diceroller')
         div(
             id='rollLog'
             class='textarea'
+            readonly
         )= rollResult
         form(class='diceForm' method='POST')
             input(
                 type='text'
                 id='rollMsg'
                 name='rollMsg'
+                autofocus
             )
             input(
                 type='submit'
                 id='rollBtn'
                 value='Roll!'
             )
+    canvas(id='renderCanvas')

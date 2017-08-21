@@ -11,13 +11,14 @@ router.get('/', function(req, res, next) {
 
 router.post('/', function(req, res, next) {
     var result = parse(req.body.rollMsg);
-    var resultString = diceResultToString(result);
+
     //console.log(resultString);
     //console.log(result);
 
     if (req.xhr || req.accepts('json,html')==='json') {
         res.json({ rollResult: result });
     } else {
+        var resultString = diceResultToString(result);
         res.render('dice', { title: 'Dice',
             rollResult: resultString
         });
