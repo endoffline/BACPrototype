@@ -16,7 +16,8 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    /*pointer-events: none; /*touch-action*/
+    touch-action: none; /*touch-action, pointer-events*/
+    pointer-events: none;
 }
 
 a {
