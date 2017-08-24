@@ -6,7 +6,7 @@ var diceResultToString = diceParser.diceResultToString;
 
 /* GET dice page. */
 router.get('/', function(req, res, next) {
-    res.render('dice', { title: 'Dice' });
+    res.render('dice', { title: 'Dice-Roller' });
 });
 
 router.post('/', function(req, res, next) {

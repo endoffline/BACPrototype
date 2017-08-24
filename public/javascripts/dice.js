@@ -1,12 +1,12 @@
 /**
  * Created by Stefan on 22.04.2017.
  */
+var log = [],
+    logPosition = 0,
+    parserResult,
+    isEven = false;
+
 if (typeof(jQuery) != 'undefined') {
-
-    var log = [],
-        logPosition = 0,
-        parserResult;
-
 
     //check if html elements are all loaded and only then execute javascript
     $(document).ready(function() {
@@ -52,7 +52,10 @@ function displayDiceResult(result) {
 
         $('#rollLog').append(errorMessage);
     } else {
-        var rollMessage = '';
+        var classStr = "rollMessage ";
+        classStr += (isEven) ? "even" : "odd";
+        isEven = !isEven;
+        var rollMessage = '<div class="' + classStr + '">';
 
         for (var i = 0; i < result.content.length; i++) {
             if (result.content[i].type === 'dice') {
@@ -61,10 +64,12 @@ function displayDiceResult(result) {
                 } else if (result.content[i].value === 1) {
                     rollMessage += '<span class="rollCriticalFailure">';
                 }
+                rollMessage +='<strong>';
             }
             rollMessage += result.content[i].value;
 
             if (result.content[i].type === 'dice') {
+                rollMessage +='</strong>';
                 if (result.content[i].value === result.content[i].sides || result.content[i].value === 1) {
                     rollMessage += '</span>';
                 }
@@ -75,8 +80,8 @@ function displayDiceResult(result) {
             rollMessage += ' ';
         }
 
-        rollMessage += '= ' + result.result;
-        $('#rollLog').append(rollMessage + '<br>');
+        rollMessage += '= <strong>' + result.result + '</strong></div>';
+        $('#rollLog').append(rollMessage);
     }
 }
 

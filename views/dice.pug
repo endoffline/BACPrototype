@@ -4,16 +4,21 @@ extends layout
 
 block content
     div(class='diceroller')
+        h1= title
+        p Welcome to the dice roller you always wanted!
+            | <br> Just enter the number and sides of dice and voila you got your roll!
+            | On top of that you can use basic arithmetic operations like addition, subtraction, multiplication and division!
+            | Roll 2 6-sided dice using this formula '2d6' and hit enter.
         div(
             id='rollLog'
             class='textarea'
-            readonly
         )= rollResult
         form(class='diceForm' method='POST')
             input(
                 type='text'
                 id='rollMsg'
                 name='rollMsg'
+                placeholder="2d6 + 3"
                 autofocus
             )
             input(
