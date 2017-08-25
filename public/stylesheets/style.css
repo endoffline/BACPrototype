@@ -5,7 +5,7 @@
 
 body {
     overflow: auto;
-    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    font: 14px Helvetica, Arial, sans-serif;
 }
 
 canvas {
@@ -45,6 +45,7 @@ a {
     display: block;
     resize: vertical;
     overflow: auto;
+    min-height: 200px;
     height: 300px;
 }
 

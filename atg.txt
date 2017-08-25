@@ -1,0 +1,15 @@
+Syntax
+Expr = (3d6 + 3 - 10) / 10
+
+
+
+
+S = Expr eof.
+Expr = Term { '+' Term | '-' Term }.
+Term = Dice { '*' Dice | '/' Dice }.
+Dice = Fact [ 'd' Fact ].
+Fact = number | '(' Expr ')'.
+
+diceroll = number 'd' number.
+number = digit { digit }.
+digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'.

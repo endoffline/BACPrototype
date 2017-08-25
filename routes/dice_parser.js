@@ -213,8 +213,8 @@ exports.parse = function (input) {
             }
             resultDice = 0;
             newSy();
-            if (syIsNot(sym.number)) {
-                return syntaxError('Error: expected number!', syLnr, syCnr);
+            if ((sy != sym.number) && (sy != sym.leftParenthesis)) {
+                return syntaxError('Error: expected number or "("!', syLnr, syCnr);
             }
             result.content.splice(result.content.length - 1, 1);
             sides = fact();

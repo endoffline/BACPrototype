@@ -1,17 +1,31 @@
 var simulator;
+var isWebGLsupported;
 
 // Execute the WebGL application only if Babylon.js is available
 if (typeof(BABYLON) != 'undefined') {
     // Execute WebGL only when the DOM is loaded
     window.addEventListener("DOMContentLoaded", function () {
-        simulator = new Simulator('renderCanvas');
 
-
+        // WebGL Detection
+        // see https://developer.mozilla.org/en-US/docs/Learn/WebGL/By_example/Detect_WebGL
+        // Create canvas element. The canvas is not added to the
+        // document itself, so it is never displayed in the
+        // browser window.
+        var canvas = document.createElement("canvas");
+        // Get WebGLRenderingContext from canvas element.
+        var gl = canvas.getContext("webgl")
+            || canvas.getContext("experimental-webgl");
+        // Report the result.
+        if (gl && gl instanceof WebGLRenderingContext) {
+            isWebGLsupported = true;
+            simulator = new Simulator('renderCanvas');
+        }
     }, false);
 
     // Watch for browser/canvas resize events
     window.addEventListener("resize", function () {
-        simulator.engine.resize();
+        if (isWebGLsupported)
+            simulator.engine.resize();
     });
 }
 
@@ -37,7 +51,7 @@ Simulator.prototype._initScene = function (engine) {
     scene.enablePhysics(new BABYLON.Vector3(0,-9,0), new BABYLON.OimoJSPlugin());
     scene.clearColor = new BABYLON.Color4(0,0,0,0);
     // This creates and positions a free camera (non-mesh)
-    var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 20, -5), scene);
+    var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 20, 0), scene);
     //var camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 3, 0), scene);
     camera.rotation = new BABYLON.Vector3(Math.PI/3.5, 0, 0);
     camera.attachControl(engine.getRenderingCanvas());
@@ -100,11 +114,11 @@ Simulator.prototype._initScene = function (engine) {
 
 
 
-    var ground = new BABYLON.Mesh.CreatePlane("ground", 1000, scene);
-    ground.rotation.x = Math.PI / 2;
-    ground.material = new BABYLON.ShadowOnlyMaterial('mat', scene);
-    ground.receiveShadows = true;
-    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, {mass: 0, restitution: 0.05, friction:0.8});
+    this.ground = new BABYLON.Mesh.CreatePlane("ground", 1000, scene);
+    this.ground.rotation.x = Math.PI / 2;
+    this.ground.material = new BABYLON.ShadowOnlyMaterial('mat', scene);
+    this.ground.receiveShadows = true;
+    this.ground.physicsImpostor = new BABYLON.PhysicsImpostor(this.ground, BABYLON.PhysicsImpostor.PlaneImpostor, {mass: 0, restitution: 0.05, friction:0.8});
 
 
     this.shadows = new BABYLON.ShadowGenerator(1024, lightD);
@@ -203,8 +217,97 @@ var Dice6 = function(value, simulator) {
     //this.receiveShadows = true;
     simulator.shadows.getShadowMap().renderList.push(this);
     this.rotationQuaternion = BABYLON.Quaternion.RotationYawPitchRoll(0, Math.PI/8, Math.PI/4);
-    this.physicsImpostor = new BABYLON.PhysicsImpostor(this, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 100, restitution: 0.1, friction:1});
+    this.physicsImpostor = new BABYLON.PhysicsImpostor(this, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 100, restitution: 0.1, friction:0.3});
     this.physicsImpostor.applyImpulse(new BABYLON.Vector3(-12, 0, 0), this.getAbsolutePosition());
+
+    this.pickable = false;
+
+    this.rays = [];
+    var allDone = false;
+
+    var directions =
+        [
+            BABYLON.Vector3(  0,  0,  1),   //front
+            BABYLON.Vector3(  0,  0, -1),   //back
+            BABYLON.Vector3( -1,  0,  0),   //left
+            BABYLON.Vector3(  1,  0,  0),   //right
+            BABYLON.Vector3(  0,  1,  0),   //up
+            BABYLON.Vector3(  0, -1,  0)    //down
+        ];
+
+    /*var origin = this.position;
+    var length = 10;
+    for (var i = 0; i < 6; i++) {
+        var d = vecToLocal(directions[i], this);
+
+        var direction = d.subtract(origin);
+        direction = BABYLON.Vector3.Normalize(direction);
+
+
+
+        this.rays[i] = new BABYLON.Ray(origin, direction, length);
+    }*/
+
+
+
+    //_this.rays[0] = new BABYLON.Ray(_this.position, BABYLON.Vector3(0, 0, 1));
+    //var rayHelper = new BABYLON.RayHelper(_this.rays[0]);
+
+
+
+    /*var localMeshDirection = new BABYLON.Vector3(0, -1,0);
+    var localMeshOrigin = new BABYLON.Vector3(0, 0, 0);
+    var length = 20;
+
+    var ray = new BABYLON.Ray(localMeshOrigin, localMeshDirection, length);
+    var rayHelper = new BABYLON.RayHelper(ray);
+
+    rayHelper.attachToMesh(_this, localMeshDirection, localMeshOrigin, length);
+    rayHelper.show(scene, BABYLON.Color3(1, 1, 0));*/
+
+    var _this = this;
+
+    function vecToLocal(vector, mesh){
+        var m = mesh.getWorldMatrix();
+        var v = BABYLON.Vector3.TransformCoordinates(vector, m);
+        return v;
+    }
+
+    var sleepcheck = function () {
+
+        if (_this.physicsImpostor.physicsBody.sleeping && !allDone) {
+            console.log("it's asleep!");
+            console.log(_this.position);
+            // do lots more stuff
+            /*for (var i = 0; i < 6; i++) {
+                _this.rays[i] = new BABYLON.Ray(_this.position, BABYLON.Vector3(0, 0, 1));
+                BABYLON.RayHelper.CreateAndShow(_this.rays[i], scene, new BABYLON.Color3(1, 1, 0.1));
+                //var rayHelper = new BABYLON.RayHelper(_this.rays[i]);
+
+                var ray = new BABYLON.Ray();
+                var rayHelper = new BABYLON.RayHelper(ray);
+
+                var localMeshDirection = new BABYLON.Vector3(0, -1,0);
+                var localMeshOrigin = new BABYLON.Vector3(0, -.4, 0);
+                var length = 20;
+
+                rayHelper.attachToMesh(_this, localMeshDirection, localMeshOrigin, length);
+                rayHelper.show(scene);
+            }
+            */
+            /*for (var i = 0; i < 6; i++) {
+                var hit = scene.pickWithRay(_this.rays[i], function(mesh) {
+                    return mesh == simulator.ground;
+                });
+                if (hit.pickedMesh) {
+                    console.log("picked: " + i);
+                }
+            }*/
+            allDone = true;
+        }
+    }
+
+    //scene.registerBeforeRender(sleepcheck);
 };
 
 Dice6.prototype = Object.create(DiceObject.prototype);
@@ -230,20 +333,25 @@ DiceRoll.prototype.dispose = function() {
 };
 
 DiceRoll.createDiceRoll = function(parserResult, simulator) {
-    var diceRoll = new DiceRoll(simulator);
+    var diceRoll;
 
-    if (parserResult != null && parserResult.content != null) {
-        for (var i = 0; i < parserResult.content.length; i++) {
-            var dice6 = null;
+    if (isWebGLsupported) {
+        diceRoll = new DiceRoll(simulator);
 
-            if (parserResult.content[i].type === 'dice') {
-                if (parserResult.content[i].sides === 6) {
-                    dice6 = new Dice6(parserResult.content[i].value, simulator);
-                    diceRoll.dice6s.push(dice6);
+        if (parserResult != null && parserResult.content != null) {
+            for (var i = 0; i < parserResult.content.length; i++) {
+                var dice6 = null;
+
+                if (parserResult.content[i].type === 'dice') {
+                    if (parserResult.content[i].sides === 6) {
+                        dice6 = new Dice6(parserResult.content[i].value, simulator);
+                        diceRoll.dice6s.push(dice6);
+                    }
                 }
             }
         }
     }
+
     return diceRoll;
 };
 

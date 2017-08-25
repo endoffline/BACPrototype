@@ -9,11 +9,17 @@ var log = [],
 
 if (typeof(jQuery) != 'undefined') {
 
-    //check if html elements are all loaded and only then execute javascript
-    $(document).ready(function() {
-        $('#rollLog').html('');
-        $('.diceForm').submit(rollDice);
-        $('#rollMsg').keyup(getLastMessage)
+    //check if html is loaded and only then execute javascript
+    $(document).ready(function () {
+
+        //check if DOM elements exist, then act
+        var rollLog = document.querySelector('#rollLog');
+        var diceForm = document.querySelector('.diceForm');
+        var rollMsg = document.querySelector('#rollMsg');
+
+        if (rollLog) $('#rollLog').html('');
+        if (diceForm) $('.diceForm').submit(rollDice);
+        if (rollMsg) $('#rollMsg').keyup(getLastMessage);
     });
 }
 
@@ -27,8 +33,8 @@ function rollDice(event) {
         logPosition = log.length;
         $.post(
             "/dice",
-            { rollMsg: messageText },
-            function( data ) {
+            {rollMsg: messageText},
+            function (data) {
                 parserResult = data.rollResult;
                 displayDiceResult(parserResult);
                 $('#rollLog').scrollTop($('#rollLog')[0].scrollHeight + 6);
@@ -41,53 +47,55 @@ function rollDice(event) {
 }
 
 function displayDiceResult(result) {
-    if (result.result === 'error') {
-        var errorMessage = result.input.substring(0, result.exception.col - 1)
-            + '<span class="bg-danger">'
-            + result.input.substring(result.exception.col - 1, result.exception.col)
-            + '</span>'
-            + result.input.substring(result.exception.col)
-            + '<br>'
-            + result.exception.message
-            + '<br>';
+    if (result) {
+        if (result.result === 'error') {
+            var errorMessage = result.input.substring(0, result.exception.col - 1)
+                + '<span class="bg-danger">'
+                + result.input.substring(result.exception.col - 1, result.exception.col)
+                + '</span>'
+                + result.input.substring(result.exception.col)
+                + '<br>'
+                + result.exception.message
+                + '<br>';
 
-        $('#rollLog').append(errorMessage);
-    } else {
-        var classStr = "rollMessage ";
-        classStr += (isEven) ? "even" : "odd";
-        isEven = !isEven;
-        var rollMessage = '<div class="' + classStr + '">';
+            $('#rollLog').append(errorMessage);
+        } else if (result.content.length > 0) {
+            var classStr = "rollMessage ";
+            classStr += (isEven) ? "even" : "odd";
+            isEven = !isEven;
+            var rollMessage = '<div class="' + classStr + '">';
 
-        for (var i = 0; i < result.content.length; i++) {
-            if (result.content[i].type === 'dice') {
-                if (result.content[i].value === result.content[i].sides) {
-                    rollMessage += '<span class="rollCriticalSuccess">';
-                } else if (result.content[i].value === 1) {
-                    rollMessage += '<span class="rollCriticalFailure">';
+            for (var i = 0; i < result.content.length; i++) {
+                if (result.content[i].type === 'dice') {
+                    if (result.content[i].value === result.content[i].sides) {
+                        rollMessage += '<span class="rollCriticalSuccess">';
+                    } else if (result.content[i].value === 1) {
+                        rollMessage += '<span class="rollCriticalFailure">';
+                    }
+                    rollMessage += '<strong>';
                 }
-                rollMessage +='<strong>';
-            }
-            rollMessage += result.content[i].value;
+                rollMessage += result.content[i].value;
 
-            if (result.content[i].type === 'dice') {
-                rollMessage +='</strong>';
-                if (result.content[i].value === result.content[i].sides || result.content[i].value === 1) {
-                    rollMessage += '</span>';
+                if (result.content[i].type === 'dice') {
+                    rollMessage += '</strong>';
+                    if (result.content[i].value === result.content[i].sides || result.content[i].value === 1) {
+                        rollMessage += '</span>';
+                    }
+
+                    rollMessage += '[d' + result.content[i].sides + ']';
                 }
 
-                rollMessage += '[d' + result.content[i].sides + ']';
+                rollMessage += ' ';
             }
 
-            rollMessage += ' ';
-        }
+            rollMessage += '= <strong>' + result.result + '</strong></div>';
+            $('#rollLog').append(rollMessage);
 
-        rollMessage += '= <strong>' + result.result + '</strong></div>';
-        $('#rollLog').append(rollMessage);
-
-        if (diceRoll != null) {
-            diceRoll.dispose();
+            if (diceRoll != null) {
+                diceRoll.dispose();
+            }
+            diceRoll = DiceRoll.createDiceRoll(result, simulator);
         }
-        diceRoll = DiceRoll.createDiceRoll(result, simulator);
     }
 }
 
