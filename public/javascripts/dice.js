@@ -4,8 +4,7 @@
 var log = [],
     logPosition = 0,
     parserResult,
-    isEven = false,
-    diceRoll = null;
+    isEven = false;
 
 if (typeof(jQuery) != 'undefined') {
 
@@ -90,10 +89,7 @@ function displayDiceResult(result) {
 
             rollMessage += '= <strong>' + result.result + '</strong></div>';
             $('#rollLog').append(rollMessage);
-
-            if (diceRoll != null) {
-                diceRoll.dispose();
-            }
+            
             diceRoll = DiceRoll.createDiceRoll(result, simulator);
         }
     }
