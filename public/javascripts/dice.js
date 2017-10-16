@@ -25,9 +25,10 @@ if (typeof(jQuery) != 'undefined') {
 function rollDice(event) {
 
     var messageText = $('#rollMsg').val();
+
     $('#rollMsg').val('');
 
-    if (messageText.length !== 0) {
+    if (messageText.length > 0) {
         log.push(messageText);
         logPosition = log.length;
         $.post(

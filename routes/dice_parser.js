@@ -109,7 +109,7 @@ exports.parse = function (input) {
 
     // ------- Parser ------- //
     var success = false;
-    var result = {type: '', content: [], input: inputString, exception: '', result: ''};
+    var result = {input: inputString, content: [], exception: '', result: ''};
 
 
     function syIsNot(expected) {

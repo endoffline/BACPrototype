@@ -4,30 +4,34 @@ var simulator,
 
 // Execute the WebGL application only if Babylon.js is available
 if (typeof(BABYLON) != 'undefined') {
-    // Execute WebGL only when the DOM is loaded
-    window.addEventListener("DOMContentLoaded", function () {
 
-        // WebGL Detection
-        // see https://developer.mozilla.org/en-US/docs/Learn/WebGL/By_example/Detect_WebGL
-        // Create canvas element. The canvas is not added to the
-        // document itself, so it is never displayed in the
-        // browser window.
-        var canvas = document.createElement("canvas");
-        // Get WebGLRenderingContext from canvas element.
-        var gl = canvas.getContext("webgl")
-            || canvas.getContext("experimental-webgl");
-        // Report the result.
-        if (gl && gl instanceof WebGLRenderingContext) {
-            isWebGLSupported = true;
-            simulator = new Simulator('renderCanvas');
-        }
-    }, false);
+    if ('addEventListener' in window) {
+        // Execute WebGL only when the DOM is loaded
+        window.addEventListener("DOMContentLoaded", function () {
 
-    // Watch for browser/canvas resize events
-    window.addEventListener("resize", function () {
-        if (isWebGLSupported)
-            simulator.engine.resize();
-    });
+            // WebGL Detection
+            // see https://developer.mozilla.org/en-US/docs/Learn/WebGL/By_example/Detect_WebGL
+            // Create canvas element. The canvas is not added to the
+            // document itself, so it is never displayed in the
+            // browser window.
+            var canvas = document.createElement("canvas");
+            // Get WebGLRenderingContext from canvas element.
+            var gl = canvas.getContext("webgl")
+                || canvas.getContext("experimental-webgl");
+            // Report the result.
+            if (gl && gl instanceof WebGLRenderingContext) {
+                isWebGLSupported = true;
+                simulator = new Simulator('renderCanvas');
+            }
+        }, false);
+
+        // Watch for browser/canvas resize events
+        window.addEventListener("resize", function () {
+            if (isWebGLSupported)
+                simulator.engine.resize();
+        });
+    }
+
 }
 
 var Simulator = function(canvasId) {
@@ -36,6 +40,8 @@ var Simulator = function(canvasId) {
     this.engine = new BABYLON.Engine(canvas, true);
 
     this.scene = this._initScene(this.engine, canvas.width, canvas.height);
+
+    this.hideShadows = false;
 
     var _this = this;
     // The render loop
@@ -49,7 +55,7 @@ Simulator.prototype._initScene = function (engine, canvasWidth, canvasHeight) {
 
     // This creates a basic Babylon Scene object (non-mesh)
     var scene = new BABYLON.Scene(engine);
-    scene.enablePhysics(new BABYLON.Vector3(0,-9,0), new BABYLON.OimoJSPlugin());
+    scene.enablePhysics(new BABYLON.Vector3(0,-9.81,0), new BABYLON.OimoJSPlugin());
     scene.clearColor = new BABYLON.Color4(0,0,0,0);
 
 
@@ -178,7 +184,7 @@ Simulator.prototype._initScene = function (engine, canvasWidth, canvasHeight) {
     this.antiGround = new BABYLON.Mesh.CreatePlane("ground", 100, scene);
     this.antiGround.isVisible = false;
     this.antiGround.rotation.x = Math.PI / 2;
-    this.antiGround.position.y = 2.5;
+    this.antiGround.position.y = 3;
     this.antiGround.material = shadowOnlyMaterial;
     this.antiGround.physicsImpostor = new BABYLON.PhysicsImpostor(this.antiGround, BABYLON.PhysicsImpostor.PlaneImpostor, {mass: 0, restitution: 0.05, friction:0.8});
     var _this = this;
@@ -236,9 +242,18 @@ Simulator.prototype._initScene = function (engine, canvasWidth, canvasHeight) {
     //this.shadows.getShadowMap().renderList.push(sphere);
     //this.shadows.getShadowMap().renderList.push(cube);
     //console.log("cube total vertices: " + cube.getTotalVertices() + " total indices: " + cube.getTotalIndices() + " data: " + cube.getVerticesData(BABYLON.VertexBuffer.PositionKind));
-
-
-
+    this.lowestValue = 60;
+    var _this = this;
+    scene.registerBeforeRender(function() {
+        //if (engine.getFps() < 24) {
+        if (engine.getFps() < _this.lowestValue) {
+            _this.lowestValue = engine.getFps();
+            console.log(_this.lowestValue);
+        }
+            simulator.hideShadows = true;
+            //console.log(engine.getFps());
+        //}
+    });
 
     return scene;
 
@@ -262,7 +277,7 @@ DiceObject.prototype = Object.create(BABYLON.Mesh.prototype);
 DiceObject.prototype.constructor = DiceObject;
 
 //Dice6
-var Dice6 = function(value, simulator, hideShadows) {
+var Dice6 = function(value, simulator) {
     simulator.diceCounter++;
     var name = "dice6_" + simulator.diceCounter;
     DiceObject.call(this, name, simulator);
@@ -277,18 +292,18 @@ var Dice6 = function(value, simulator, hideShadows) {
 
 
 
-    dice6.position.x = 10;
+    dice6.position.x = 20;
     dice6.position.y = 0.5;
-    dice6.position.z = 0;
+    dice6.position.z = -5;
 
     //this.receiveShadows = true;
-    if (!hideShadows) {
+    if (!simulator.hideShadows) {
         simulator.shadows.getShadowMap().renderList.push(dice6);
     }
 
     dice6.rotationQuaternion = new BABYLON.Quaternion.RotationYawPitchRoll(0, Math.PI/6, Math.PI/4);
     dice6.physicsImpostor = new BABYLON.PhysicsImpostor(dice6, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 1, restitution: 0.1, friction:1});
-    dice6.physicsImpostor.applyImpulse(new BABYLON.Vector3(-30, 0, 0), dice6.getAbsolutePosition());
+    dice6.physicsImpostor.applyImpulse(new BABYLON.Vector3(-25, 0, 7), dice6.getAbsolutePosition());
 
     this.dice6 = dice6;
     this.rays = [];
@@ -412,21 +427,22 @@ DiceRoll.createDiceRoll = function(parserResult, simulator) {
 
         if (parserResult != null && parserResult.content != null) {
             var diceCount = 0;
-            var hideShadows = false;
+            //simulator.hideShadows = false;
             for (var i = 0; i < parserResult.content.length; i++) {
                 if (parserResult.content[i].type === 'dice') {
                     diceCount++;
                 }
             }
-            if (diceCount > 10) {
-                hideShadows = true;
-            }
+            //if (diceCount > 10) {
+            //    simulator.hideShadows = true;
+            //}
+            simulator.lowestValue = 60;
             for (var i = 0; i < parserResult.content.length; i++) {
                 var dice6 = null;
 
                 if (parserResult.content[i].type === 'dice') {
                     if (parserResult.content[i].sides === 6) {
-                        dice6 = new Dice6(parserResult.content[i].value, simulator, hideShadows);
+                        dice6 = new Dice6(parserResult.content[i].value, simulator);
                         diceRoll.dice6s.push(dice6);
                     }
                 }

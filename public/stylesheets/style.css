@@ -80,7 +80,7 @@ a {
 
 input[type=submit] {
     padding: 0;
-    height: auto;
+    height: 33px;
     background-color: #deceeb;
     font-weight: bold;
     box-shadow: inset -2px -4px 10px rgba(0, 0, 0, .075);
@@ -95,6 +95,10 @@ input[type=submit]:active {
 }
 
 .diceForm {
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
     display: flex;
     width: 100%;
 }
@@ -126,6 +130,6 @@ input[type=submit]:active {
 }
 
 .even {
-    background-color: #deceeb;
+    background-color: rgb(222, 206, 235);
     background-color: rgba(222, 206, 235, .3);
 }

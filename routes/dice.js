@@ -9,19 +9,21 @@ router.get('/', function(req, res, next) {
     res.render('dice', { title: 'Dice-Roller' });
 });
 
+/* POST dice response */
 router.post('/', function(req, res, next) {
     var result = parse(req.body.rollMsg);
 
-    //console.log(resultString);
-    //console.log(result);
-
+    // send result JSON when AJAX-Request
+    // else render the result within the whole website
     if (req.xhr || req.accepts('json,html')==='json') {
         res.json({ rollResult: result });
+        console.log("AJAX");
     } else {
         var resultString = diceResultToString(result);
-        res.render('dice', { title: 'Dice',
+        res.render('dice', { title: 'Dice-Roller',
             rollResult: resultString
         });
+        console.log("POST");
     }
 });
 

@@ -4,12 +4,19 @@ html
     title= title
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
     link(rel='stylesheet', href='/stylesheets/style.css')
+
+    <!--[if gt IE 8]><!-->
     script(type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
     script.
       window.jQuery || document.write('<script src="/javascripts/jquery.min.js"><\/script>')
-    //script(src='http://cdn.babylonjs.com/babylon.js')
+    <!--<![endif]-->
+
+    <!--[if lte IE 8]><!-->
     script.
-      window.BABYLON || document.write('<script src="/javascripts/babylon.custom.js"><\/script>')
+      window.jQuery || document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"><\/script>')
+    <!--<![endif]-->
+
+    script(type='text/javascript' src='/javascripts/babylon.custom.js')
     script(type='text/javascript' src='/javascripts/dice.js')
     script(src='/javascripts/3d-dice.js')
   body
